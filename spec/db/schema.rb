@@ -12,6 +12,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.integer :author_id
     t.string :owner_type
     t.integer :owner_id
+    t.string :type
   end
 
   create_table(:users, force: true) do |t|
@@ -47,6 +48,7 @@ class Tag < ActiveRecord::Base
   belongs_to :owner, polymorphic: true
   has_many :post_tags
   has_many :posts, through: :post_tags
+  has_many :sponsored_posts, through: :post_tags
 
   if Goldiloader::Compatibility.mass_assignment_security_enabled?
     attr_accessible :name
@@ -55,6 +57,7 @@ end
 
 class PostTag < ActiveRecord::Base
   belongs_to :post
+  belongs_to :sponsored_post
   belongs_to :tag
 end
 
@@ -91,6 +94,8 @@ class Blog < ActiveRecord::Base
   has_many :posts_overridden, class_name: 'Post'
   has_many :authors, through: :posts
   has_many :addresses, through: :authors
+
+  has_many :sponsored_posts
 
   if Goldiloader::Compatibility.mass_assignment_security_enabled?
     attr_accessible :name
@@ -131,6 +136,9 @@ class Post < ActiveRecord::Base
   def after_post_destroy
     # Hook for tests
   end
+end
+
+class SponsoredPost < Post
 end
 
 class User < ActiveRecord::Base

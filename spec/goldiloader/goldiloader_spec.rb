@@ -34,6 +34,7 @@ describe Goldiloader do
     blog1.posts.create!(title: 'blog1-post2') do |post|
       post.author = author2
       post.tags << child_tag1
+      post.type = 'SponsoredPost'
     end
 
     blog1
@@ -50,6 +51,7 @@ describe Goldiloader do
     blog2.posts.create!(title: 'blog2-post2') do |post|
       post.author = author1
       post.tags << child_tag3
+      post.type = 'SponsoredPost'
     end
 
     blog2
@@ -229,6 +231,25 @@ describe Goldiloader do
 
     blogs.each do |blog|
       expect(blog.association(:posts_overridden)).to be_loaded
+    end
+  end
+
+  it "auto eager loads associations to single table inherited models" do
+    blogs = Blog.order(:name).to_a
+
+    blogs.first.association(:sponsored_posts).load_target
+
+    blogs.drop(1).each do |blog|
+      expect(blog.association(:sponsored_posts)).to be_loaded
+    end
+  end
+
+  it "auto eager loads has_many through associations to single table inherited models" do
+    tags = Tag.order(:name).to_a
+    tags.first.association(:sponsored_posts).load_target
+
+    tags.drop(1).each do |tag|
+      expect(tag.association(:sponsored_posts)).to be_loaded
     end
   end
 
